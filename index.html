@@ -47,7 +47,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(26 entries)</td>
+<td>(31 entries)</td>
 </tr>
 <tr>
 <td>Variable Index</td>
@@ -143,7 +143,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(5 entries)</td>
+<td>(9 entries)</td>
 </tr>
 <tr>
 <td>Constructor Index</td>
@@ -175,7 +175,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(3 entries)</td>
+<td>(2 entries)</td>
 </tr>
 <tr>
 <td>Axiom Index</td>
@@ -207,7 +207,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(2 entries)</td>
+<td>(4 entries)</td>
 </tr>
 <tr>
 <td>Inductive Index</td>
@@ -286,10 +286,13 @@
 <a href="CBCCasper.CBCCasper.html#F">F</a> [variable, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#forward_consistency">forward_consistency</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#Future">Future</a> [inductive, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
-<a href="CBCCasper.CBCCasper.html#FutureBase">FutureBase</a> [constructor, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#FutureTrans">FutureTrans</a> [constructor, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Future_trans">Future_trans</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Future_refl">Future_refl</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="global_I"></a><h2>I </h2>
 <a href="CBCCasper.CBCCasper.html#incl">incl</a> [variable, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#incl_trans">incl_trans</a> [axiom, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#incl_refl">incl_refl</a> [axiom, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#incl_union_r">incl_union_r</a> [axiom, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#incl_union_l">incl_union_l</a> [axiom, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="global_M"></a><h2>M </h2>
@@ -306,6 +309,8 @@
 <a href="CBCCasper.CBCCasper.html#t">t</a> [variable, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#Trans">Trans</a> [constructor, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#Transition">Transition</a> [inductive, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Transition_trans">Transition_trans</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Transition_refl">Transition_refl</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#two_party_consensus_safety">two_party_consensus_safety</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#two_party_common_futures">two_party_common_futures</a> [lemma, in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="global_U"></a><h2>U </h2>
@@ -340,21 +345,26 @@
 <a href="CBCCasper.CBCCasper.html#backward_consistency">backward_consistency</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="lemma_F"></a><h2>F </h2>
 <a href="CBCCasper.CBCCasper.html#forward_consistency">forward_consistency</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Future_trans">Future_trans</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Future_refl">Future_refl</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="lemma_M"></a><h2>M </h2>
 <a href="CBCCasper.CBCCasper.html#monotonic_futures">monotonic_futures</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="lemma_T"></a><h2>T </h2>
+<a href="CBCCasper.CBCCasper.html#Transition_trans">Transition_trans</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#Transition_refl">Transition_refl</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#two_party_consensus_safety">two_party_consensus_safety</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#two_party_common_futures">two_party_common_futures</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><hr/>
 <h1>Constructor Index</h1>
 <a name="constructor_F"></a><h2>F </h2>
-<a href="CBCCasper.CBCCasper.html#FutureBase">FutureBase</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#FutureTrans">FutureTrans</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><a name="constructor_T"></a><h2>T </h2>
 <a href="CBCCasper.CBCCasper.html#Trans">Trans</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><hr/>
 <h1>Axiom Index</h1>
 <a name="axiom_I"></a><h2>I </h2>
+<a href="CBCCasper.CBCCasper.html#incl_trans">incl_trans</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
+<a href="CBCCasper.CBCCasper.html#incl_refl">incl_refl</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#incl_union_r">incl_union_r</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <a href="CBCCasper.CBCCasper.html#incl_union_l">incl_union_l</a> [in <a href="CBCCasper.CBCCasper.html">CBCCasper.CBCCasper</a>]<br/>
 <br/><br/><hr/>
@@ -404,7 +414,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(26 entries)</td>
+<td>(31 entries)</td>
 </tr>
 <tr>
 <td>Variable Index</td>
@@ -500,7 +510,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(5 entries)</td>
+<td>(9 entries)</td>
 </tr>
 <tr>
 <td>Constructor Index</td>
@@ -532,7 +542,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(3 entries)</td>
+<td>(2 entries)</td>
 </tr>
 <tr>
 <td>Axiom Index</td>
@@ -564,7 +574,7 @@
 <td>Z</td>
 <td>_</td>
 <td>other</td>
-<td>(2 entries)</td>
+<td>(4 entries)</td>
 </tr>
 <tr>
 <td>Inductive Index</td>
