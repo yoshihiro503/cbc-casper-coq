@@ -9,7 +9,7 @@ Variable union : forall {E: Set}, set E -> set E -> set E.
 Variable incl : forall {E: Set}, set E -> set E -> Prop.
 Axiom incl_union_l : forall {E: Set} (A B: set E), incl A (union A B).
 Axiom incl_union_r : forall {E: Set} (A B: set E), incl B (union A B).
-
+Axiom incl_trans : forall {E: Set} (A B C: set E), incl A B -> incl B C -> incl A C.
 (*Variable number : Set.*)
 Definition number := nat.
 
@@ -23,15 +23,33 @@ Definition State := set message.
 Inductive Transition : State -> State -> Prop :=
 | Trans : forall state1 state2, incl state1 state2 -> Transition state1 state2.
 
+Lemma Transition_trans : forall s1 s2 s3,
+    Transition s1 s2 -> Transition s2 s3 -> Transition s1 s3.
+Proof.
+  intros s1 s2 s3 tr1 tr2.
+  inversion tr1 as [x y incl1]. clear x y H H0.
+  inversion tr2 as [x y incl2]. clear x y H H0.
+  now apply Trans, incl_trans with (B := s2).
+Qed.
+
 Variable F : State -> number.
 Definition Sigma_t state := F state <= t.
 
 (** * Safety Proof *)
 
 Inductive Future : State -> State -> Prop :=
-| FutureBase : forall state, Sigma_t state -> Future state state
 | FutureTrans : forall state state',
     Sigma_t state -> Sigma_t state' -> Transition state state' -> Future state state' .
+
+Lemma Future_trans : forall s1 s2 s3,
+    Future s1 s2 -> Future s2 s3 -> Future s1 s3.
+Proof.
+  intros s1 s2 s3 fut1 fut2.
+  inversion fut1 as [x y sigma1 sigma2 trans1]. clear x y H H0.
+  inversion fut2 as [x y _ sigma3 trans2]. clear x y H H0.
+  apply FutureTrans; auto.
+  now apply Transition_trans with (s2 := s2).
+Qed.
 
 (** Theorem 1 *)
 Theorem two_party_common_futures :
@@ -55,7 +73,13 @@ Lemma monotonic_futures : forall state state',
     Sigma_t state' ->
     Future state state' <-> (forall s, Future state' s -> Future state s).
 Proof.
-Admitted.
+  intros state state' sigma sigma'.
+  split.
+  - intros fut s fut0.
+    apply Future_trans with (s2 := state'); auto.
+  - intros impl. apply impl.
+    now constructor.
+Qed.
 
 Definition Decided (p: State -> Prop) state : Prop := forall state', Future state state' -> p state'.
 
