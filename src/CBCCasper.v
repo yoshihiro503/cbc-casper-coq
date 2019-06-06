@@ -18,17 +18,17 @@ Variable V : set validator.
 Variable t : number.
 
 Variable message : Set.
-Definition state := set message.
+Definition State := set message.
 
-Inductive Transition : state -> state -> Prop :=
+Inductive Transition : State -> State -> Prop :=
 | Trans : forall state1 state2, incl state1 state2 -> Transition state1 state2.
 
-Variable F : state -> number.
+Variable F : State -> number.
 Definition Sigma_t state := F state <= t.
 
 (** * Safety Proof *)
 
-Inductive Future : state -> state -> Prop :=
+Inductive Future : State -> State -> Prop :=
 | FutureBase : forall state, Sigma_t state -> Future state state
 | FutureTrans : forall state state',
     Sigma_t state -> Sigma_t state' -> Transition state state' -> Future state state' .
@@ -49,7 +49,7 @@ Proof.
     apply Trans, incl_union_r.
 Qed.
 
-Definition Decided (p: state -> Prop) state : Prop := forall state', Future state state' -> p state'.
+Definition Decided (p: State -> Prop) state : Prop := forall state', Future state state' -> p state'.
 
 Definition neg {A : Type} (P: A -> Prop) := fun x => ~P x.
 
