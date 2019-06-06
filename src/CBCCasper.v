@@ -9,6 +9,7 @@ Variable union : forall {E: Set}, set E -> set E -> set E.
 Variable incl : forall {E: Set}, set E -> set E -> Prop.
 Axiom incl_union_l : forall {E: Set} (A B: set E), incl A (union A B).
 Axiom incl_union_r : forall {E: Set} (A B: set E), incl B (union A B).
+Axiom incl_refl : forall {E: Set} (A: set E), incl A A.
 Axiom incl_trans : forall {E: Set} (A B C: set E), incl A B -> incl B C -> incl A C.
 (*Variable number : Set.*)
 Definition number := nat.
@@ -22,6 +23,11 @@ Definition State := set message.
 
 Inductive Transition : State -> State -> Prop :=
 | Trans : forall state1 state2, incl state1 state2 -> Transition state1 state2.
+
+Lemma Transition_refl : forall s, Transition s s.
+Proof.
+  intros s. apply Trans, incl_refl.
+Qed.
 
 Lemma Transition_trans : forall s1 s2 s3,
     Transition s1 s2 -> Transition s2 s3 -> Transition s1 s3.
@@ -40,6 +46,13 @@ Definition Sigma_t state := F state <= t.
 Inductive Future : State -> State -> Prop :=
 | FutureTrans : forall state state',
     Sigma_t state -> Sigma_t state' -> Transition state state' -> Future state state' .
+
+Lemma Future_refl : forall s,
+    Sigma_t s -> Future s s.
+Proof.
+  intros s sigma. apply FutureTrans; auto.
+  now apply Transition_refl.
+Qed.
 
 Lemma Future_trans : forall s1 s2 s3,
     Future s1 s2 -> Future s2 s3 -> Future s1 s3.
@@ -78,7 +91,7 @@ Proof.
   - intros fut s fut0.
     apply Future_trans with (s2 := state'); auto.
   - intros impl. apply impl.
-    now constructor.
+    now apply Future_refl.
 Qed.
 
 Definition Decided (p: State -> Prop) state : Prop := forall state', Future state state' -> p state'.
@@ -108,7 +121,7 @@ Proof.
   apply ex_not_not_all.
   unfold Decided in dec.
   exists state'. intro H. elim H; auto.
-  apply dec; now constructor.
+  apply dec. now apply Future_refl.
 Qed.
 
 
