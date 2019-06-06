@@ -49,6 +49,14 @@ Proof.
     apply Trans, incl_union_r.
 Qed.
 
+(** lemma 1 *)
+Lemma monotonic_futures : forall state state',
+    Sigma_t state ->
+    Sigma_t state' ->
+    Future state state' <-> (forall s, Future state' s -> Future state s).
+Proof.
+Admitted.
+
 Definition Decided (p: State -> Prop) state : Prop := forall state', Future state state' -> p state'.
 
 Definition neg {A : Type} (P: A -> Prop) := fun x => ~P x.
@@ -60,7 +68,10 @@ Lemma forward_consistency : forall state state' p,
     Future state state' ->
     Decided p state -> Decided p state'.
 Proof.
-Admitted.
+  intros state state' p sigma1 sigma2 fut dec.
+  intros state'' fut''.
+  rewrite monotonic_futures in fut; auto.
+Qed.
 
 (** Lemma 3 *)
 Lemma backward_consistency : forall state state' p,
@@ -69,7 +80,12 @@ Lemma backward_consistency : forall state state' p,
     Future state state' ->
     Decided p state' -> ~Decided (neg p) state.
 Proof.
-Admitted.
+  intros state state' p sigma1 sigma2 fut dec.
+  apply ex_not_not_all.
+  unfold Decided in dec.
+  exists state'. intro H. elim H; auto.
+  apply dec; now constructor.
+Qed.
 
 
   (** Theorem 3 *)
