@@ -151,3 +151,18 @@ Proof.
   apply (backward_consistency state2 s) with (p := p); auto.
   apply (forward_consistency state1 s) with (p := p); auto.
 Qed.
+
+(** Definition 3.5 *)
+Definition Consistent (Q : (State -> Prop) -> Prop) :=
+  exists state, forall q, Q q -> q state.
+
+(** Definition 3.6 *)
+Definition Decisions state p := Decided p state.
+
+(** Theorem 4 *)
+Theorem n_party_consensus_safety_for_properties_of_protocol_states :
+  forall states,
+    List.Forall Sigma_t states ->
+    F (unions states) <= t -> Consistent (list_pred_union (List.map Decisions states)).
+Proof.
+Admitted.
