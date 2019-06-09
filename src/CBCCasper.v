@@ -3,8 +3,10 @@
  *)
 
 Require Import Classical List.
+Require Import CBCCasper.Util.
 
 Definition list_pred_union {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Exists (fun p => p x) ps.
+Definition list_pred_intersection {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Forall (fun p => p x) ps.
 
 Variable set : Set -> Set.
 Variable empty_set : forall {A:Set}, set A.
@@ -111,24 +113,22 @@ Definition neg {A : Type} (P: A -> Prop) := fun x => ~P x.
 
 (** Lemma 2 *)
 Lemma forward_consistency : forall state state' p,
-    Sigma_t state ->
-    Sigma_t state' ->
     Future state state' ->
     Decided p state -> Decided p state'.
 Proof.
-  intros state state' p sigma1 sigma2 fut dec.
+  intros state state' p fut dec.
   intros state'' fut''.
+  inversion fut as [_state _state' sigma sigma' _H _H0 _H1]. clear _state _state' _H _H0 _H1.
   rewrite monotonic_futures in fut; auto.
 Qed.
 
 (** Lemma 3 *)
 Lemma backward_consistency : forall state state' p,
-    Sigma_t state ->
-    Sigma_t state' ->
     Future state state' ->
     Decided p state' -> ~Decided (neg p) state.
 Proof.
-  intros state state' p sigma1 sigma2 fut dec.
+  intros state state' p fut dec.
+  inversion fut as [_state _state' sigma sigma' _H _H0 _H1]. clear _state _state' _H _H0 _H1.
   apply ex_not_not_all.
   unfold Decided in dec.
   exists state'. intro H. elim H; auto.
@@ -159,10 +159,32 @@ Definition Consistent (Q : (State -> Prop) -> Prop) :=
 (** Definition 3.6 *)
 Definition Decisions state p := Decided p state.
 
+(** Theorem 2 *)
+Theorem n_party_common_futures : forall states,
+    F (unions states) <= t ->
+    exists state', list_pred_intersection (List.map Future states) state'.
+Proof.
+Admitted.
+
 (** Theorem 4 *)
 Theorem n_party_consensus_safety_for_properties_of_protocol_states :
   forall states,
     List.Forall Sigma_t states ->
     F (unions states) <= t -> Consistent (list_pred_union (List.map Decisions states)).
 Proof.
-Admitted.
+  intros states sigmas f.
+  destruct (n_party_common_futures _ f) as [state' Hstate'].
+
+  unfold Consistent. exists state'. intros p. unfold list_pred_union.
+  rewrite list_Exists_map.
+  intros dec_p.
+  unfold list_pred_intersection in Hstate'.
+  rewrite list_Forall_map in Hstate'.
+
+  apply (list_Exists_Forall_and State _ _ _ dec_p) in Hstate'. clear dec_p.
+  rewrite Exists_exists in Hstate'.
+  destruct Hstate' as [state_i [Hin [Hdec Hstate_i]]].
+  inversion Hstate_i as [_s _s' sigma sigma' _H _H0 _H1]. clear _s _s' _H _H0 _H1.
+  apply forward_consistency with (p := p) in Hstate_i; auto.
+  now apply Hstate_i, Future_refl.
+Qed.
