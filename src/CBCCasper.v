@@ -2,24 +2,35 @@
    see https://github.com/cbc-casper/cbc-casper-paper/blob/master/cbc-casper-paper-draft.pdf
  *)
 
-Require Import Classical.
+Require Import Classical List.
+
+Definition list_pred_union {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Exists (fun p => p x) ps.
 
 Variable set : Set -> Set.
+Variable empty_set : forall {A:Set}, set A.
 Variable union : forall {E: Set}, set E -> set E -> set E.
+Definition unions {A: Set} (xss : list (set A)) :=
+  List.fold_right (fun x acc => union x acc) empty_set xss.
+
 Variable incl : forall {E: Set}, set E -> set E -> Prop.
 Axiom incl_union_l : forall {E: Set} (A B: set E), incl A (union A B).
 Axiom incl_union_r : forall {E: Set} (A B: set E), incl B (union A B).
 Axiom incl_refl : forall {E: Set} (A: set E), incl A A.
 Axiom incl_trans : forall {E: Set} (A B C: set E), incl A B -> incl B C -> incl A C.
+
+
 (*Variable number : Set.*)
 Definition number := nat.
 
 Variable validator : Set.
 Variable V : set validator.
 Variable t : number.
+Variable C : Set.
 
 Variable message : Set.
 Definition State := set message.
+
+Variable Eps : State -> C -> Prop.
 
 Inductive Transition : State -> State -> Prop :=
 | Trans : forall state1 state2, incl state1 state2 -> Transition state1 state2.
