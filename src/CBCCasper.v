@@ -111,24 +111,22 @@ Definition neg {A : Type} (P: A -> Prop) := fun x => ~P x.
 
 (** Lemma 2 *)
 Lemma forward_consistency : forall state state' p,
-    Sigma_t state ->
-    Sigma_t state' ->
     Future state state' ->
     Decided p state -> Decided p state'.
 Proof.
-  intros state state' p sigma1 sigma2 fut dec.
+  intros state state' p fut dec.
   intros state'' fut''.
+  inversion fut as [_state _state' sigma sigma' _H _H0 _H1]. clear _state _state' _H _H0 _H1.
   rewrite monotonic_futures in fut; auto.
 Qed.
 
 (** Lemma 3 *)
 Lemma backward_consistency : forall state state' p,
-    Sigma_t state ->
-    Sigma_t state' ->
     Future state state' ->
     Decided p state' -> ~Decided (neg p) state.
 Proof.
-  intros state state' p sigma1 sigma2 fut dec.
+  intros state state' p fut dec.
+  inversion fut as [_state _state' sigma sigma' _H _H0 _H1]. clear _state _state' _H _H0 _H1.
   apply ex_not_not_all.
   unfold Decided in dec.
   exists state'. intro H. elim H; auto.
