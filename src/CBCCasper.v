@@ -172,4 +172,19 @@ Theorem n_party_consensus_safety_for_properties_of_protocol_states :
     List.Forall Sigma_t states ->
     F (unions states) <= t -> Consistent (list_pred_union (List.map Decisions states)).
 Proof.
-Admitted.
+  intros states sigmas f.
+  destruct (n_party_common_futures _ f) as [state' Hstate'].
+
+  unfold Consistent. exists state'. intros p. unfold list_pred_union.
+  rewrite list_Exists_map.
+  intros dec_p.
+  unfold list_pred_intersection in Hstate'.
+  rewrite list_Forall_map in Hstate'.
+
+  apply (list_Exists_Forall_and State _ _ _ dec_p) in Hstate'. clear dec_p.
+  rewrite Exists_exists in Hstate'.
+  destruct Hstate' as [state_i [Hin [Hdec Hstate_i]]].
+  inversion Hstate_i as [_s _s' sigma sigma' _H _H0 _H1]. clear _s _s' _H _H0 _H1.
+  apply forward_consistency with (p := p) in Hstate_i; auto.
+  now apply Hstate_i, Future_refl.
+Qed.
