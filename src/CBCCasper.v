@@ -3,8 +3,10 @@
  *)
 
 Require Import Classical List.
+Require Import CBCCasper.Util.
 
 Definition list_pred_union {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Exists (fun p => p x) ps.
+Definition list_pred_intersection {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Forall (fun p => p x) ps.
 
 Variable set : Set -> Set.
 Variable empty_set : forall {A:Set}, set A.
@@ -156,6 +158,13 @@ Definition Consistent (Q : (State -> Prop) -> Prop) :=
 
 (** Definition 3.6 *)
 Definition Decisions state p := Decided p state.
+
+(** Theorem 2 *)
+Theorem n_party_common_futures : forall states,
+    F (unions states) <= t ->
+    exists state', list_pred_intersection (List.map Future states) state'.
+Proof.
+Admitted.
 
 (** Theorem 4 *)
 Theorem n_party_consensus_safety_for_properties_of_protocol_states :
