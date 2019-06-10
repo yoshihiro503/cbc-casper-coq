@@ -52,6 +52,9 @@ Proof.
 Qed.
 
 Variable F : State -> number.
+Axiom F_union_l : forall state1 state2, F state1 <= F (union state1 state2).
+Axiom F_union_r : forall state1 state2, F state2 <= F (union state1 state2).
+
 Definition Sigma_t state := F state <= t.
 
 (** * Safety Proof *)
