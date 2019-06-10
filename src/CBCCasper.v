@@ -2,7 +2,7 @@
    see https://github.com/cbc-casper/cbc-casper-paper/blob/master/cbc-casper-paper-draft.pdf
  *)
 
-Require Import Classical List.
+Require Import Classical List Omega.
 Require Import CBCCasper.Util.
 
 Definition list_pred_union {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Exists (fun p => p x) ps.
@@ -52,6 +52,9 @@ Proof.
 Qed.
 
 Variable F : State -> number.
+Axiom F_union_l : forall state1 state2, F state1 <= F (union state1 state2).
+Axiom F_union_r : forall state1 state2, F state2 <= F (union state1 state2).
+
 Definition Sigma_t state := F state <= t.
 
 (** * Safety Proof *)
@@ -77,20 +80,34 @@ Proof.
   now apply Transition_trans with (s2 := s2).
 Qed.
 
+Lemma two_party_common_futures_aux :
+  forall state1 state2,
+    F (union state1 state2) <= t ->
+    Future state1 (union state1 state2) /\ Future state2 (union state1 state2).
+Proof.
+  intros state1 state2 le_f.
+  cut (Sigma_t state1 /\ Sigma_t state2).
+  + intros [sigma1 sigma2].
+    split.
+    - apply FutureTrans; auto.
+      apply Trans, incl_union_l.
+    - apply FutureTrans; auto.
+      apply Trans, incl_union_r.
+  + unfold Sigma_t.
+    remember (F_union_l state1 state2).
+    remember (F_union_r state1 state2).
+    omega.
+Qed.
+
 (** Theorem 1 *)
 Theorem two_party_common_futures :
   forall state1 state2,
-    Sigma_t state1 ->
-    Sigma_t state2 ->
     F (union state1 state2) <= t ->
     exists state, Future state1 state /\ Future state2 state.
 Proof.
-  intros state1 state2 sigma1 sigma2 le_f.
-  exists (union state1 state2). split.
-  - apply FutureTrans; auto.
-    apply Trans, incl_union_l.
-  - apply FutureTrans; auto.
-    apply Trans, incl_union_r.
+  intros state1 state2 le_f.
+  exists (union state1 state2).
+  now apply two_party_common_futures_aux.
 Qed.
 
 (** lemma 1 *)
@@ -162,9 +179,31 @@ Definition Decisions state p := Decided p state.
 (** Theorem 2 *)
 Theorem n_party_common_futures : forall states,
     F (unions states) <= t ->
-    exists state', list_pred_intersection (List.map Future states) state'.
+    exists state', Sigma_t state' /\ list_pred_intersection (List.map Future states) state'.
 Proof.
-Admitted.
+  intros states le_t.
+  exists (unions states).
+  unfold list_pred_intersection.
+  induction states.
+  - (* states = [] *)
+    split; auto. simpl. constructor.
+  - (* states = s :: states' *)
+    split; auto.
+    rewrite list_Forall_map.
+    rewrite list_Forall_map in IHstates.
+    simpl. constructor.
+    + now apply two_party_common_futures_aux.
+    + destruct IHstates as [sigma IHtl].
+      * simpl in le_t. remember (F_union_r a (unions states)). omega.
+      * eapply (Forall_impl); [| apply IHtl].
+        simpl. intros state0 Hstate0.
+        inversion Hstate0. clear state state' H2 H3.
+        apply FutureTrans; auto.
+        inversion H1. clear state1 state2 H3 H4.
+        apply Trans.
+        apply (incl_trans _ _ _ H2).
+        apply incl_union_r.
+Qed.
 
 (** Theorem 4 *)
 Theorem n_party_consensus_safety_for_properties_of_protocol_states :
@@ -173,7 +212,7 @@ Theorem n_party_consensus_safety_for_properties_of_protocol_states :
     F (unions states) <= t -> Consistent (list_pred_union (List.map Decisions states)).
 Proof.
   intros states sigmas f.
-  destruct (n_party_common_futures _ f) as [state' Hstate'].
+  destruct (n_party_common_futures _ f) as [state' [sigma' Hstate']].
 
   unfold Consistent. exists state'. intros p. unfold list_pred_union.
   rewrite list_Exists_map.
@@ -184,7 +223,7 @@ Proof.
   apply (list_Exists_Forall_and State _ _ _ dec_p) in Hstate'. clear dec_p.
   rewrite Exists_exists in Hstate'.
   destruct Hstate' as [state_i [Hin [Hdec Hstate_i]]].
-  inversion Hstate_i as [_s _s' sigma sigma' _H _H0 _H1]. clear _s _s' _H _H0 _H1.
+  inversion Hstate_i as [_s _s' sigma _sigma' _H _H0 _H1]. clear _s _s' _H _H0 _H1.
   apply forward_consistency with (p := p) in Hstate_i; auto.
   now apply Hstate_i, Future_refl.
 Qed.
