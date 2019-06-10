@@ -2,7 +2,7 @@
    see https://github.com/cbc-casper/cbc-casper-paper/blob/master/cbc-casper-paper-draft.pdf
  *)
 
-Require Import Classical List.
+Require Import Classical List Omega.
 Require Import CBCCasper.Util.
 
 Definition list_pred_union {A:Type} (ps: list (A -> Prop)) : A -> Prop := fun x => List.Exists (fun p => p x) ps.
@@ -179,9 +179,31 @@ Definition Decisions state p := Decided p state.
 (** Theorem 2 *)
 Theorem n_party_common_futures : forall states,
     F (unions states) <= t ->
-    exists state', list_pred_intersection (List.map Future states) state'.
+    exists state', Sigma_t state' /\ list_pred_intersection (List.map Future states) state'.
 Proof.
-Admitted.
+  intros states le_t.
+  exists (unions states).
+  unfold list_pred_intersection.
+  induction states.
+  - (* states = [] *)
+    split; auto. simpl. constructor.
+  - (* states = s :: states' *)
+    split; auto.
+    rewrite list_Forall_map.
+    rewrite list_Forall_map in IHstates.
+    simpl. constructor.
+    + now apply two_party_common_futures_aux.
+    + destruct IHstates as [sigma IHtl].
+      * simpl in le_t. remember (F_union_r a (unions states)). omega.
+      * eapply (Forall_impl); [| apply IHtl].
+        simpl. intros state0 Hstate0.
+        inversion Hstate0. clear state state' H2 H3.
+        apply FutureTrans; auto.
+        inversion H1. clear state1 state2 H3 H4.
+        apply Trans.
+        apply (incl_trans _ _ _ H2).
+        apply incl_union_r.
+Qed.
 
 (** Theorem 4 *)
 Theorem n_party_consensus_safety_for_properties_of_protocol_states :
