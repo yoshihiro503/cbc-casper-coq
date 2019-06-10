@@ -80,20 +80,34 @@ Proof.
   now apply Transition_trans with (s2 := s2).
 Qed.
 
+Lemma two_party_common_futures_aux :
+  forall state1 state2,
+    F (union state1 state2) <= t ->
+    Future state1 (union state1 state2) /\ Future state2 (union state1 state2).
+Proof.
+  intros state1 state2 le_f.
+  cut (Sigma_t state1 /\ Sigma_t state2).
+  + intros [sigma1 sigma2].
+    split.
+    - apply FutureTrans; auto.
+      apply Trans, incl_union_l.
+    - apply FutureTrans; auto.
+      apply Trans, incl_union_r.
+  + unfold Sigma_t.
+    remember (F_union_l state1 state2).
+    remember (F_union_r state1 state2).
+    omega.
+Qed.
+
 (** Theorem 1 *)
 Theorem two_party_common_futures :
   forall state1 state2,
-    Sigma_t state1 ->
-    Sigma_t state2 ->
     F (union state1 state2) <= t ->
     exists state, Future state1 state /\ Future state2 state.
 Proof.
-  intros state1 state2 sigma1 sigma2 le_f.
-  exists (union state1 state2). split.
-  - apply FutureTrans; auto.
-    apply Trans, incl_union_l.
-  - apply FutureTrans; auto.
-    apply Trans, incl_union_r.
+  intros state1 state2 le_f.
+  exists (union state1 state2).
+  now apply two_party_common_futures_aux.
 Qed.
 
 (** lemma 1 *)
