@@ -30,12 +30,20 @@ Variable t : number.
 Variable C : Set.
 
 Variable message : Set.
-Definition State := set message.
+Variable State : Set.
+Variable empty_state : State.
+Variable set_of_state : State -> set message.
+Definition state_incl state1 state2 := incl (set_of_state state1) (set_of_state state2).
+Variable state_union : State -> State -> State.
+Axiom state_incl_union_l : forall state1 state2, state_incl state1 (state_union state1 state2).
+Axiom state_incl_union_r : forall state1 state2, state_incl state2 (state_union state1 state2).
+Definition state_unions (xss : list State) :=
+  List.fold_right (fun x acc => state_union x acc) empty_state xss.
 
 Variable Eps : State -> C -> Prop.
 
 Inductive Transition : State -> State -> Prop :=
-| Trans : forall state1 state2, incl state1 state2 -> Transition state1 state2.
+| Trans : forall state1 state2, state_incl state1 state2 -> Transition state1 state2.
 
 Lemma Transition_refl : forall s, Transition s s.
 Proof.
@@ -48,12 +56,12 @@ Proof.
   intros s1 s2 s3 tr1 tr2.
   inversion tr1 as [x y incl1]. clear x y H H0.
   inversion tr2 as [x y incl2]. clear x y H H0.
-  now apply Trans, incl_trans with (B := s2).
+  now apply Trans, incl_trans with (B := set_of_state s2).
 Qed.
 
 Variable F : State -> number.
-Axiom F_union_l : forall state1 state2, F state1 <= F (union state1 state2).
-Axiom F_union_r : forall state1 state2, F state2 <= F (union state1 state2).
+Axiom F_union_l : forall state1 state2, F state1 <= F (state_union state1 state2).
+Axiom F_union_r : forall state1 state2, F state2 <= F (state_union state1 state2).
 
 Definition Sigma_t state := F state <= t.
 
@@ -82,17 +90,17 @@ Qed.
 
 Lemma two_party_common_futures_aux :
   forall state1 state2,
-    F (union state1 state2) <= t ->
-    Future state1 (union state1 state2) /\ Future state2 (union state1 state2).
+    F (state_union state1 state2) <= t ->
+    Future state1 (state_union state1 state2) /\ Future state2 (state_union state1 state2).
 Proof.
   intros state1 state2 le_f.
   cut (Sigma_t state1 /\ Sigma_t state2).
   + intros [sigma1 sigma2].
     split.
     - apply FutureTrans; auto.
-      apply Trans, incl_union_l.
+      apply Trans, state_incl_union_l.
     - apply FutureTrans; auto.
-      apply Trans, incl_union_r.
+      apply Trans, state_incl_union_r.
   + unfold Sigma_t.
     remember (F_union_l state1 state2).
     remember (F_union_r state1 state2).
@@ -102,11 +110,11 @@ Qed.
 (** Theorem 1 *)
 Theorem two_party_common_futures :
   forall state1 state2,
-    F (union state1 state2) <= t ->
+    F (state_union state1 state2) <= t ->
     exists state, Future state1 state /\ Future state2 state.
 Proof.
   intros state1 state2 le_f.
-  exists (union state1 state2).
+  exists (state_union state1 state2).
   now apply two_party_common_futures_aux.
 Qed.
 
@@ -157,7 +165,7 @@ Qed.
 Theorem two_party_consensus_safety : forall state1 state2 p,
     Sigma_t state1 ->
     Sigma_t state2 ->
-    F (union state1 state2) <= t ->
+    F (state_union state1 state2) <= t ->
     ~ (Decided p state1 /\ Decided (neg p) state2).
 Proof.
   intros state1 state2 p sigma1 sigma2 le_f.
@@ -178,11 +186,11 @@ Definition Decisions state p := Decided p state.
 
 (** Theorem 2 *)
 Theorem n_party_common_futures : forall states,
-    F (unions states) <= t ->
+    F (state_unions states) <= t ->
     exists state', Sigma_t state' /\ list_pred_intersection (List.map Future states) state'.
 Proof.
   intros states le_t.
-  exists (unions states).
+  exists (state_unions states).
   unfold list_pred_intersection.
   induction states.
   - (* states = [] *)
@@ -194,7 +202,7 @@ Proof.
     simpl. constructor.
     + now apply two_party_common_futures_aux.
     + destruct IHstates as [sigma IHtl].
-      * simpl in le_t. remember (F_union_r a (unions states)). omega.
+      * simpl in le_t. remember (F_union_r a (state_unions states)). omega.
       * eapply (Forall_impl); [| apply IHtl].
         simpl. intros state0 Hstate0.
         inversion Hstate0. clear state state' H2 H3.
@@ -202,14 +210,14 @@ Proof.
         inversion H1. clear state1 state2 H3 H4.
         apply Trans.
         apply (incl_trans _ _ _ H2).
-        apply incl_union_r.
+        apply state_incl_union_r.
 Qed.
 
 (** Theorem 4 *)
 Theorem n_party_consensus_safety_for_properties_of_protocol_states :
   forall states,
     List.Forall Sigma_t states ->
-    F (unions states) <= t -> Consistent (list_pred_union (List.map Decisions states)).
+    F (state_unions states) <= t -> Consistent (list_pred_union (List.map Decisions states)).
 Proof.
   intros states sigmas f.
   destruct (n_party_common_futures _ f) as [state' [sigma' Hstate']].
